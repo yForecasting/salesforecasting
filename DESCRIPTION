@@ -3,10 +3,12 @@ Title: Sales Forecasting
 Version: 0.0.1
 Authors@R: 
     person("Yves R.", "Sagaert", , "yves.r.sagaert@gmail.com", role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID"))
+           comment = c(ORCID = "0000-0002-6322-7160"))
 Description: This packages provides functionalities for sales forecasting in a business setting.
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.2
+Imports: 
+    utils
