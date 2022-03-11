@@ -29,9 +29,9 @@
 #'
 #'
 #' @return A data frame or matrix
+#' @export
 #'
-#'
-#' @example
+#' @examples
 #' dates <- c('2019-07-01', '2019-07-02', '2019-07-03', '2019-07-01')
 #' stores <- c('AM','AC')
 #' example_df <- data.frame( t1 = c(15, 12),
@@ -41,7 +41,6 @@
 #'                  )
 #' rownames(example_df) <- stores
 #' tr_df <- transform_to_transactional(example_df, keep_columns = TRUE) # Keeps current columns
-#' @example
 #' tr_df_dates <- transform_to_transactional(example_df, keep_columns = FALSE,
 #'                                           start = as.Date(dates[1]), freq = 'day' )
 #'

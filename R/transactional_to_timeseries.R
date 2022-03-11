@@ -35,16 +35,15 @@
 #'
 #'
 #' @return A data frame with time series objects or a single time series
+#' @export
 #'
-#'
-#' @example
+#' @examples
 #' dates <- c('2019-07-01', '2019-07-02', '2019-07-15', '2019-07-21')
 #' AM <- c(90, 100, 50, 5 )
 #' AC <- c(100, 100, 25, 4)
 #' example_df <- data.frame(dates, AM, AC)
-#' trans_df <- transactional_to_timeseries(example_df, index = 'dates', orig_freq = 'day')
-#' @example
-#' trans_df <- transactional_to_timeseries(example_df, index = 'dates', orig_freq = 'day',
+#' transactional_to_timeseries(example_df, index = 'dates', orig_freq = 'day')
+#' transactional_to_timeseries(example_df, index = 'dates', orig_freq = 'day',
 #'                                         aggregated_freq = 'week', return_all = FALSE,
 #'                                         columns_to_return = c('AM'))
 #'
