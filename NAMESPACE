@@ -2,3 +2,5 @@
 
 export(cp)
 export(pt)
+export(transactional_to_timeseries)
+export(transform_to_transactional)
