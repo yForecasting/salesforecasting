@@ -80,6 +80,11 @@ transactional_to_timeseries <- function(df, index, orig_freq, aggregated_freq = 
     ts_df <- (ts_df[,cols])
   }
 
+
+  # Aggregating
+  agg_data <- cut(ts_df$Date, breaks = aggregated_freq)
+  ts_df$Date <- agg_data
+
   # Grouping
   ts_df <- stats::aggregate(. ~ Date, ts_df, sum)
 
