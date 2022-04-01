@@ -1,42 +1,23 @@
 #' transform_to_transactional function
 #'
-#' Converts a dataframe to another in a transactional form.
-#' Removes zero_demand observations for storage purposes.
-#'
-#' For example:
-#'
-#' | ID | d1 | d2 | d3 | ... | dt |    | ID |    Date     | Value |
-#'
-#' | a1 | 20 | 30 | 0  | ... | 12 | => | a1 | 01/02/2014  |   20  |
-#'
-#' | a2 | 80 | 0  | 14 | ... | 0  |    | a2 | 01/02/2014  |   80  |
-#'
-#'                                     | a1 | 02/02/2014  |   30  |
-#'
-#'                                     | a2 | 03/02/2014  |   14  |
-#'
-#'                                     | .. |     ..      |   ..  |
-#'
-#'                                     | .. |     ..      |   ..  |
-#'
-#'                                     | a1 | 28/40/2014  |   12  |
-#'
-#'
+#' Converts a data frame with a ID column and all different date columns to a
+#' transactional data frame with three columns: ID, Date and Value.
+#' The function removes zero_demand observations to minimize storage size.
 #'
 #'
 #' @param df A dataframe or matrix containing sales on a particular date. Columns stand for time observations
 #' @param keep_columns A boolean stating if the function returns the original columns. Default is TRUE.
-#' @param non_zero_demand A boolen stating if the function should returns zero observations. Default is FALSE.
+#' @param non_zero_demand A boolean stating if the function should returns zero observations. Default is FALSE.
 #' @param start A date object indicating the starting date in the transactional df.
 #' NOTE 1: Only considered if keep_columns is set to FALSE.
 #' NOTE 2: If keep_columns is set to false, the start parameter should be given along with end or freq
 #' @param end A date object indicating the last date on the transcational df
-#' @param freq The frequency of the observated observations. Can be numeric, or string (eg 'day')
+#' @param freq The frequency of the observated observations. Can be numeric, or string (eg 'day', 'week', '2 weeks', 'month', '2 months', 'quater', 'year')
 #'
 #' @author Filotas Theodosiou
 #'
 #'
-#' @return A data frame or matrix
+#' @return A data frame or matrix with three columns: ID, Date and Value
 #' @export
 #'
 #' @examples
@@ -53,7 +34,25 @@
 #'                                           start = as.Date(dates[1]), freq = 'day' )
 #'
 
-
+#  Code example:
+#
+# | ID | d1 | d2 | d3 | ... | dt |    | ID |    Date     | Value |
+#
+# | a1 | 20 | 30 | 0  | ... | 12 | => | a1 | 01/02/2014  |   20  |
+#
+# | a2 | 80 | 0  | 14 | ... | 0  |    | a2 | 01/02/2014  |   80  |
+#
+#                                     | a1 | 02/02/2014  |   30  |
+#
+#                                     | a2 | 03/02/2014  |   14  |
+#
+#                                     | .. |     ..      |   ..  |
+#
+#                                     | .. |     ..      |   ..  |
+#
+#                                     | a1 | 28/40/2014  |   12  |
+#
+#
 transform_to_transactional <- function(df, keep_columns = TRUE, non_zero_demand = FALSE,
                                        start = NULL, end = NULL, freq = NULL){
 

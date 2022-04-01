@@ -6,24 +6,6 @@
 #' with zeros
 #'
 #'
-#'
-#' For example:
-#'  |    Date     | ID | Value |    |    Date     |  a1  |  a2  |
-#'
-#'  | 01/02/2014  | a1 |   20  |    | 01/02/2014  |  20  |  80  |
-#'
-#'  | 01/02/2014  | a2 |   80  |    | 02/02/2014  |  30  |   0  |
-#'
-#'  | 02/02/2014  | a1 |   30  | => | 03/02/2014  |   0  |  14  |
-#'
-#'  | 03/02/2014  | a2 |   14  |    |     ..      |  ..  |  ..  |
-#'
-#'  |     ..      | .. |   ..  |    |     ..      |  ..  |  ..  |
-#'
-#'  |     ..      | .. |   ..  |    | 28/40/2014  |  12  |   0  |
-#'  | 28/40/2014  | a1 |   12  |
-
-#'
 #' @param df A transactional dataframe or matrix
 #' @param index The index (or the column with the timestamps) of the dataframe. It should be in a date format.
 #' @param orig_freq The original frequency of the dataframe.
@@ -54,6 +36,26 @@
 #'                                         columns_to_return = c('AM'))
 #'
 #'
+#'
+#
+#
+#
+# For example:
+#  |    Date     | ID | Value |    |    Date     |  a1  |  a2  |
+#
+#  | 01/02/2014  | a1 |   20  |    | 01/02/2014  |  20  |  80  |
+#
+#  | 01/02/2014  | a2 |   80  |    | 02/02/2014  |  30  |   0  |
+#
+#  | 02/02/2014  | a1 |   30  | => | 03/02/2014  |   0  |  14  |
+#
+#  | 03/02/2014  | a2 |   14  |    |     ..      |  ..  |   ..  |
+#
+#  |     ..      | .. |   ..  |    |     ..      |  ..  |  ..  |
+#
+#  |     ..      | .. |   ..  |    | 28/40/2014  |  12  |   0  |
+#  | 28/40/2014  | a1 |   12  |
+
 
 transactional_to_timeseries <- function(df, index, orig_freq, aggregated_freq = NULL,
                                         return_all = TRUE, columns_to_return = NULL ){
