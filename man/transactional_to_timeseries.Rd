@@ -41,23 +41,6 @@ User can select the aggregation level, in terms of frequency, the transformed df
 If the transcational dataframe has skipped values due to non zero demand, the function fills this values
 with zeros
 }
-\details{
-For example:
-|    Date     | ID | Value |    |    Date     |  a1  |  a2  |
-
-| 01/02/2014  | a1 |   20  |    | 01/02/2014  |  20  |  80  |
-
-| 01/02/2014  | a2 |   80  |    | 02/02/2014  |  30  |   0  |
-
-| 02/02/2014  | a1 |   30  | => | 03/02/2014  |   0  |  14  |
-
-| 03/02/2014  | a2 |   14  |    |     ..      |  ..  |  ..  |
-
-|     ..      | .. |   ..  |    |     ..      |  ..  |  ..  |
-
-|     ..      | .. |   ..  |    | 28/40/2014  |  12  |   0  |
-| 28/40/2014  | a1 |   12  |
-}
 \examples{
 dates <- c('2019-07-01', '2019-07-02', '2019-07-15', '2019-07-21')
 AM <- c(90, 100, 50, 5 )
@@ -67,6 +50,7 @@ transactional_to_timeseries(example_df, index = 'dates', orig_freq = 'day')
 transactional_to_timeseries(example_df, index = 'dates', orig_freq = 'day',
                                         aggregated_freq = 'week', return_all = FALSE,
                                         columns_to_return = c('AM'))
+
 
 
 }
