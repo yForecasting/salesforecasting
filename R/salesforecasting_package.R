@@ -7,4 +7,6 @@
 #' @docType package
 #' @name salesforecasting
 # Flow of contribution: fork - code - document - check - pull request
+# Add dependency via devtools - usethis::use_package(“utils”)
+
 "_PACKAGE"
