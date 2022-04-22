@@ -7,7 +7,7 @@
 generate_forecast_table(
   data,
   models = c("ets"),
-  start = c(2019, 7, 1),
+  start,
   freq = 365.25,
   h = 1,
   orimax = 1,
@@ -21,7 +21,7 @@ individual time series, the different rows are different periods of the
 time series.}
 
 \item{models}{A vector with string notations of different models. A
-selection can be made from c("naive", "seasonal naive", "hw","ets","arima")
+selection can be made from c("naive", "seasonal naive", "holt-winters","ets","arima")
 or their abbreviation c("n","sn","hw","e","a"). Default is c("ets").}
 
 \item{start}{A vector containing Year, Month and Day info in the format of
@@ -49,11 +49,18 @@ A data frame with the (yft) format.
 Executes a list of forecast models for a predefined set of horizons
 }
 \examples{
-data <- data.frame(AA=rnorm(100,100,10),AB=rnorm(100,500,10),BB=rnorm(100,1000,10))
+# Daily example
+data <- round(data.frame(AA=rnorm(100,100,10),AB=rnorm(100,500,10),BB=rnorm(100,1000,10)))
 generate_forecast_table(data, models=c("ets"), start=c(2019,7,1),
 freq=365.25, h=7, orimax=1, train_length=NA, export=FALSE)
 generate_forecast_table(data, models=c("ets"), start=c(2019,7,1),
 freq=365.25, h=3, orimax=2)
+
+# Monthly example
+data <- round(data.frame(MA=rnorm(30,3000,300),MB=rnorm(30,7000,400),MC=rnorm(30,200,50)))
+generate_forecast_table(data, models=c("n","sn"), start=c(2019,7),
+freq=12, h=3, orimax=1)
+
 
 }
 \author{

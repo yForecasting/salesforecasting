@@ -7,7 +7,7 @@
 #' individual time series, the different rows are different periods of the
 #' time series.
 #' @param models A vector with string notations of different models. A
-#' selection can be made from c("naive", "seasonal naive", "hw","ets","arima")
+#' selection can be made from c("naive", "seasonal naive", "holt-winters","ets","arima")
 #' or their abbreviation c("n","sn","hw","e","a"). Default is c("ets").
 #' @param start A vector containing Year, Month and Day info in the format of
 #' c(YYYY, MM, DD).
@@ -30,12 +30,20 @@
 #' @export
 #'
 #' @examples
-#' data <- data.frame(AA=rnorm(100,100,10),AB=rnorm(100,500,10),BB=rnorm(100,1000,10))
+#' # Daily example
+#' data <- round(data.frame(AA=rnorm(100,100,10),AB=rnorm(100,500,10),BB=rnorm(100,1000,10)))
 #' generate_forecast_table(data, models=c("ets"), start=c(2019,7,1),
 #' freq=365.25, h=7, orimax=1, train_length=NA, export=FALSE)
 #' generate_forecast_table(data, models=c("ets"), start=c(2019,7,1),
 #' freq=365.25, h=3, orimax=2)
 #'
+#' # Monthly example
+#' data <- round(data.frame(MA=rnorm(30,3000,300),MB=rnorm(30,7000,400),MC=rnorm(30,200,50)))
+#' generate_forecast_table(data, models=c("n","sn"), start=c(2019,7),
+#' freq=12, h=3, orimax=1)
+#'
+#'
+
 # Info on the (yft) format:
 
 # period; numeric representation of date
@@ -75,7 +83,7 @@
 # 15 is leading indicators (with or without other promo, calendar)
 
 generate_forecast_table <- function(data, models=c("ets"),
-                                    start=c(2019,7,1), freq=365.25, h=1, orimax=1,
+                                    start, freq=365.25, h=1, orimax=1,
                                     train_length=NA, export=FALSE){
   # Return object: out-of-sample (oos) forecasting (fc) results
   colnames_oos_fc_results <- c("period","nrsal","nrmod","nrdoe","nrsetup",
@@ -84,7 +92,7 @@ generate_forecast_table <- function(data, models=c("ets"),
                                "naiveforecast", "meanhistdemand",
                                "AIC","BIC","AICC","MSE")
   oos_fc_result <-  matrix(ncol=length(colnames_oos_fc_results),
-                           nrow=ncol(data)*orimax*h)
+                           nrow=length(models)*ncol(data)*orimax*h)
   colnames(oos_fc_result) <- colnames_oos_fc_results
 
   # Make the forecast
@@ -102,8 +110,38 @@ generate_forecast_table <- function(data, models=c("ets"),
 
       for (imod in 1:length(models)){
         model <- tolower(models[imod])
-        if (model=="ets" | model=="e"){
-          # ETS base model
+        if (model=="naive" | model=="n"){
+          # Naive forecasting model
+          om <- forecast::naive(train,h)
+          fc <- om
+          om$mse=mean(om$residuals^2,na.rm=TRUE)
+          mod_nr <- 10001
+          # Missing info
+          om$aic=NA
+          om$bic=NA
+          om$aicc=NA
+        } else if (model=="seasonal naive" | model=="sn"){
+          # Seasonal Naive forecasting model
+          om <- forecast::snaive(train,h)
+          fc <- om
+          om$mse=mean(om$residuals^2,na.rm=TRUE)
+          mod_nr <- 10002
+          # Missing info
+          om$aic=NA
+          om$bic=NA
+          om$aicc=NA
+        } else if (model=="holt-winters" | model=="hw"){
+          # Holt - Winters forecasting model
+          om <- forecast::hw(train,h)
+          fc <- om
+          om$mse=mean(om$residuals^2,na.rm=TRUE)
+          mod_nr <- 10003
+          # Missing info
+          om$aic=NA
+          om$bic=NA
+          om$aicc=NA
+        } else if (model=="ets" | model=="e"){
+          # Exponential Smoothing State-Space forecasting model
           om <- forecast::ets(train)
           # Forecast
           fc <- forecast::forecast(om,h=h)
@@ -115,7 +153,7 @@ generate_forecast_table <- function(data, models=c("ets"),
 
         gmrae_benchmark <- forecast::naive(train,h=h)$mean
         # benchmark model for GMRAE in denominator
-        mean_hist_demand <- mean(train)
+        mean_hist_demand <- mean(train, na.rm=TRUE)
         # mean historical demand for MASE + RMSSE
 
         # fill in the data
