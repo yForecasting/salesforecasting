@@ -8,8 +8,9 @@
 #' time series.
 #' @param models A vector with string notations of different models. A
 #' selection can be made from c("naive", "seasonal naive", "holt-winters",
-#' "ets", "auto.arima", "stlf", "tbats")
-#' or their abbreviation c("n","sn","hw","e","a", "s", "t"). Default is c("ets").
+#' "ets", "auto.arima", "stlf", "tbats", "nnetar", "croston")
+#' or their abbreviation c("n","sn","hw","e","a", "s", "t", "nn", "c").
+#' Default is c("ets").
 #' @param start A vector containing Year, Month and Day info in the format of
 #' c(YYYY, MM, DD).
 #' @param freq Frequency of the timeseries, numerical value.
@@ -161,7 +162,8 @@ generate_forecast_table <- function(data, models=c("ets"),
           mod_nr <- 10005
         } else if (model=="stlf" | model=="s"){
           # STL forecasting model
-          fc <- forecast::stlf(train, method="ets",h=h)
+          om <- forecast::stlf(train, method="ets",h=h)
+          fc <- om
           om$mse=mean(fc$residuals^2,na.rm=TRUE)
           mod_nr <- 10006
         } else if (model=="tbats" | model=="t"){
@@ -194,7 +196,21 @@ generate_forecast_table <- function(data, models=c("ets"),
           om$aic=NA
           om$bic=NA
           om$aicc=NA
+          fc$upper=matrix(data=NA,ncol=2,nrow=length(fc$mean))
+          fc$lower=matrix(data=NA,ncol=2,nrow=length(fc$mean))
           mod_nr <- 10008
+        } else if (model=="croston" | model=="c"){
+          # Croston forecasting model
+          om <- forecast::croston(train, h=h)
+          fc <- om
+          om$mse=mean(fc$residuals^2,na.rm=TRUE)
+          mod_nr <- 10009
+          # Missing info
+          om$aic=NA
+          om$bic=NA
+          om$aicc=NA
+          fc$upper=matrix(data=NA,ncol=2,nrow=length(fc$mean))
+          fc$lower=matrix(data=NA,ncol=2,nrow=length(fc$mean))
         } else {
           warning("Model not found. This model has not been implemented.")
         }
@@ -215,6 +231,8 @@ generate_forecast_table <- function(data, models=c("ets"),
                                      om$aic, om$bic, om$aicc, om$mse)
           irow1 <- irow1 + 1
         } # end of ih
+        # remove loop-specific objects
+        rm(list=c("om", "fc", "gmrae_benchmark", "mean_hist_demand"))
       } # end of imod
     } # end of tsi
   } # end of ori

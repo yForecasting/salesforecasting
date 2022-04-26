@@ -23,8 +23,9 @@ time series.}
 
 \item{models}{A vector with string notations of different models. A
 selection can be made from c("naive", "seasonal naive", "holt-winters",
-"ets", "auto.arima", "stlf", "tbats")
-or their abbreviation c("n","sn","hw","e","a", "s", "t"). Default is c("ets").}
+"ets", "auto.arima", "stlf", "tbats", "nnetar", "croston")
+or their abbreviation c("n","sn","hw","e","a", "s", "t", "nn", "c").
+Default is c("ets").}
 
 \item{start}{A vector containing Year, Month and Day info in the format of
 c(YYYY, MM, DD).}
