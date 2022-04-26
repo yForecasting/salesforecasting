@@ -7,7 +7,7 @@
 #' individual time series, the different rows are different periods of the
 #' time series.
 #' @param models A vector with string notations of different models. A
-#' selection can be made from c("naive", "seasonal naive", "holt-winters","ets","arima")
+#' selection can be made from c("naive", "seasonal naive", "holt-winters","ets","auto.arima")
 #' or their abbreviation c("n","sn","hw","e","a"). Default is c("ets").
 #' @param start A vector containing Year, Month and Day info in the format of
 #' c(YYYY, MM, DD).
@@ -70,6 +70,8 @@
 # 10006 = STL
 # 10007 = TBATS
 # 10008 = NNETAR
+# 10009 = CROSTON
+# 10010 = SBA
 # rest: following numbers, higher number is higher complexity
 # 1 in front is a one-stage model
 # 2 is two-stage model, e.g. hierarchical reconciliation
@@ -146,6 +148,12 @@ generate_forecast_table <- function(data, models=c("ets"),
           # Forecast
           fc <- forecast::forecast(om,h=h)
           mod_nr <- 10004
+        } else if (model=="auto.arima" | model=="a"){
+          # Auto Arima forecasting model
+          om <- forecast::auto.arima(train)
+          fc <- forecast::forecast(om,h=h)
+          om$mse=mean(om$residuals^2,na.rm=TRUE)
+          mod_nr <- 10005
         } else {
           warning("Model not found. This model has not been implemented.")
         }
