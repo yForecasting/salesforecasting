@@ -12,6 +12,7 @@ generate_forecast_table(
   h = 1,
   orimax = 1,
   train_length = NA,
+  opt = rep(0, length(models)),
   export = FALSE
 )
 }
@@ -39,6 +40,10 @@ forecasting setup over a rolling origin.}
 
 \item{train_length}{Number of train periods. When the default value NA is kept,
 this parameter is set to the length of the data timeseries - (h + orimax - 1).}
+
+\item{opt}{Optimise model: A numeric vector with options for each model that is called
+in the argument models. This is 0 by default for all models, but can be set
+to model-specific options.}
 
 \item{export}{TRUE if the table with forecasts should be exported to a csv
 file. Default is FALSE}

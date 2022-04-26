@@ -20,6 +20,9 @@
 #' forecasting setup over a rolling origin.
 #' @param train_length Number of train periods. When the default value NA is kept,
 #' this parameter is set to the length of the data timeseries - (h + orimax - 1).
+#' @param opt Optimise model: A numeric vector with options for each model that is called
+#' in the argument models. This is 0 by default for all models, but can be set
+#' to model-specific options.
 #' @param export TRUE if the table with forecasts should be exported to a csv
 #' file. Default is FALSE
 #'
@@ -87,7 +90,7 @@
 
 generate_forecast_table <- function(data, models=c("ets"),
                                     start, freq=365.25, h=1, orimax=1,
-                                    train_length=NA, export=FALSE){
+                                    train_length=NA, opt=rep(0,length(models)), export=FALSE){
   # Return object: out-of-sample (oos) forecasting (fc) results
   colnames_oos_fc_results <- c("period","nrsal","nrmod","nrdoe","nrsetup",
                                "nrhor","nrrolor","pointforecast","lo80",
@@ -113,6 +116,7 @@ generate_forecast_table <- function(data, models=c("ets"),
 
       for (imod in 1:length(models)){
         model <- tolower(models[imod])
+        set.seed(1010)
         if (model=="naive" | model=="n"){
           # Naive forecasting model
           om <- forecast::naive(train,h)
@@ -170,6 +174,27 @@ generate_forecast_table <- function(data, models=c("ets"),
           om$bic=NA
           om$aicc=NA
           mod_nr <- 10007
+        } else if (model=="nnetar" | model=="nn"){
+          # NNETAR forecasting model
+          if (opt[imod]==0 || is.na(opt[imod])){
+            # Default call
+            om <- forecast::nnetar(train)
+          } else if (opt[imod]==1){
+            # Preset 1
+            om <- forecast::nnetar(train, size=1, repeats=10)
+          } else {
+            warning("Optimisation argument not found, reverting to default call.")
+            # Return to default call
+            om <- forecast::nnetar(train)
+          }
+
+          fc <- forecast::forecast(om,h=h)
+          om$mse=mean(om$residuals^2,na.rm=TRUE)
+          # Missing info
+          om$aic=NA
+          om$bic=NA
+          om$aicc=NA
+          mod_nr <- 10008
         } else {
           warning("Model not found. This model has not been implemented.")
         }
