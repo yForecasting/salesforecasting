@@ -7,8 +7,9 @@
 #' individual time series, the different rows are different periods of the
 #' time series.
 #' @param models A vector with string notations of different models. A
-#' selection can be made from c("naive", "seasonal naive", "holt-winters","ets","auto.arima")
-#' or their abbreviation c("n","sn","hw","e","a"). Default is c("ets").
+#' selection can be made from c("naive", "seasonal naive", "holt-winters","ets",
+#' "auto.arima", "stlf)
+#' or their abbreviation c("n","sn","hw","e","a", "s"). Default is c("ets").
 #' @param start A vector containing Year, Month and Day info in the format of
 #' c(YYYY, MM, DD).
 #' @param freq Frequency of the timeseries, numerical value.
@@ -154,6 +155,11 @@ generate_forecast_table <- function(data, models=c("ets"),
           fc <- forecast::forecast(om,h=h)
           om$mse=mean(om$residuals^2,na.rm=TRUE)
           mod_nr <- 10005
+        } else if (model=="stlf" | model=="s"){
+          # STL forecasting model
+          fc <- forecast::stlf(train, method="ets",h=h)
+          om$mse=mean(fc$residuals^2,na.rm=TRUE)
+          mod_nr <- 10006
         } else {
           warning("Model not found. This model has not been implemented.")
         }

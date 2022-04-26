@@ -21,8 +21,9 @@ individual time series, the different rows are different periods of the
 time series.}
 
 \item{models}{A vector with string notations of different models. A
-selection can be made from c("naive", "seasonal naive", "holt-winters","ets","auto.arima")
-or their abbreviation c("n","sn","hw","e","a"). Default is c("ets").}
+selection can be made from c("naive", "seasonal naive", "holt-winters","ets",
+"auto.arima", "stlf)
+or their abbreviation c("n","sn","hw","e","a", "s"). Default is c("ets").}
 
 \item{start}{A vector containing Year, Month and Day info in the format of
 c(YYYY, MM, DD).}
