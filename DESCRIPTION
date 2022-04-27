@@ -18,4 +18,5 @@ Imports:
     stats,
     tidyr,
     tsibble,
+    tsintermittent,
     utils

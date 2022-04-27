@@ -8,8 +8,8 @@
 #' time series.
 #' @param models A vector with string notations of different models. A
 #' selection can be made from c("naive", "seasonal naive", "holt-winters",
-#' "ets", "auto.arima", "stlf", "tbats", "nnetar", "croston")
-#' or their abbreviation c("n","sn","hw","e","a", "s", "t", "nn", "c").
+#' "ets", "auto.arima", "stlf", "tbats", "nnetar", "intermittent")
+#' or their abbreviation c("n","sn","hw","e","a", "st", "t", "nn", "i").
 #' Default is c("ets").
 #' @param start A vector containing Year, Month and Day info in the format of
 #' c(YYYY, MM, DD).
@@ -36,18 +36,24 @@
 #'
 #' @examples
 #' # Daily example
-#' data <- round(data.frame(AA=rnorm(100,100,10),AB=rnorm(100,500,10),BB=rnorm(100,1000,10)))
+#' data <- round(data.frame(AA=rnorm(100,100,10),AB=rnorm(100,500,10),
+#' BB=rnorm(100,1000,10)))
 #' generate_forecast_table(data, models=c("ets"), start=c(2019,7,1),
 #' freq=365.25, h=7, orimax=1, train_length=NA, export=FALSE)
 #' generate_forecast_table(data, models=c("ets"), start=c(2019,7,1),
 #' freq=365.25, h=3, orimax=2)
 #'
 #' # Monthly example
-#' data <- round(data.frame(MA=rnorm(30,3000,300),MB=rnorm(30,7000,400),MC=rnorm(30,200,50)))
+#' data <- round(data.frame(MA=rnorm(30,3000,300),MB=rnorm(30,7000,400),
+#' MC=rnorm(30,200,50)))
 #' generate_forecast_table(data, models=c("n","sn"), start=c(2019,7),
-#' freq=12, h=3, orimax=1)
+#' freq=12, h=3)
 #'
-#'
+#' # Intermittent demand
+#' data <- matrix(abs(round(rnorm(240,0,0.5))),nrow=60,ncol=4,
+#' dimnames=list(NULL,c("IA","IB","IC","ID")))
+#' generate_forecast_table(data, models=c("i","i","i"), start=c(2019,7),
+#' freq=12, h=3, opt=c(0,1,2))
 
 # Info on the (yft) format:
 
@@ -75,8 +81,7 @@
 # 10006 = STL
 # 10007 = TBATS
 # 10008 = NNETAR
-# 10009 = CROSTON
-# 10010 = SBA
+# 10009 = INTERMITTENT
 # rest: following numbers, higher number is higher complexity
 # 1 in front is a one-stage model
 # 2 is two-stage model, e.g. hierarchical reconciliation
@@ -160,7 +165,7 @@ generate_forecast_table <- function(data, models=c("ets"),
           fc <- forecast::forecast(om,h=h)
           om$mse=mean(om$residuals^2,na.rm=TRUE)
           mod_nr <- 10005
-        } else if (model=="stlf" | model=="s"){
+        } else if (model=="stlf" | model=="st"){
           # STL forecasting model
           om <- forecast::stlf(train, method="ets",h=h)
           fc <- om
@@ -181,13 +186,16 @@ generate_forecast_table <- function(data, models=c("ets"),
           if (opt[imod]==0 || is.na(opt[imod])){
             # Default call
             om <- forecast::nnetar(train)
+            mod_nr <- 10008
           } else if (opt[imod]==1){
             # Preset 1
             om <- forecast::nnetar(train, size=1, repeats=10)
+            mod_nr <- 10008.1
           } else {
             warning("Optimisation argument not found, reverting to default call.")
             # Return to default call
             om <- forecast::nnetar(train)
+            mod_nr <- 10008
           }
 
           fc <- forecast::forecast(om,h=h)
@@ -198,13 +206,39 @@ generate_forecast_table <- function(data, models=c("ets"),
           om$aicc=NA
           fc$upper=matrix(data=NA,ncol=2,nrow=length(fc$mean))
           fc$lower=matrix(data=NA,ncol=2,nrow=length(fc$mean))
-          mod_nr <- 10008
-        } else if (model=="croston" | model=="c"){
-          # Croston forecasting model
-          om <- forecast::croston(train, h=h)
-          fc <- om
-          om$mse=mean(fc$residuals^2,na.rm=TRUE)
-          mod_nr <- 10009
+        } else if (model=="intermittent" | model=="i"){
+          # Forecasting model for intermittent demand
+          if (opt[imod]==0 || is.na(opt[imod])){
+            # Default call TSB model
+            om <- tsintermittent::tsb(train,h=h, init.opt = TRUE,
+                                      outplot=FALSE, na.rm = TRUE)
+            fc <- om
+            fc$mean <- fc$frc.out
+            om$mse=mean((train-fc$frc.in)^2,na.rm=TRUE) #todo: rate to items !!!
+            mod_nr <- 10009
+          } else if (opt[imod]==1){
+            # Preset 1
+            # Croston forecasting model
+            om <- forecast::croston(train, h=h)
+            fc <- om
+            om$mse=mean(fc$residuals^2,na.rm=TRUE)
+            mod_nr <- 10009.1
+          } else if (opt[imod]==2){
+            # Preset 2
+            # SBA forecasting model
+            # Other intermittent models are: crost, tsb, sexsm, crost.ma
+            om <- tsintermittent::crost(train, type="sba", h=h)
+            fc <- om
+            fc$mean <- fc$frc.out
+            om$mse=mean((train-fc$frc.in)^2,na.rm=TRUE) # todo: rate to items !!!
+            mod_nr <- 10009.2
+          } else {
+            warning("Optimisation argument not found, reverting to default call.")
+            # Return to default call
+            om <- tsintermittent::tsb(train,h=h)
+            mod_nr <- 10009
+          }
+
           # Missing info
           om$aic=NA
           om$bic=NA
